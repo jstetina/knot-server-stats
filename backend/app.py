@@ -4,6 +4,7 @@ from functools import wraps
 
 from flask import Flask, jsonify, make_response, request, session
 from flask_cors import CORS
+from flask_login import login_required, login_user, logout_user
 
 from config import *
 from database import Database
@@ -14,29 +15,29 @@ CORS(app, resources={r"*": {"origins": "*"}})
 db = Database(app, db_config)
 
 
-def login_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if not session.get("logged_in"):
-            return jsonify({"message": "Please log in to access this resource"}), 401
-        return f(*args, **kwargs)
-
-    return decorated
-
-
 @app.post("/login")
 def login():
     """Login route to authenticate user and create a session."""
-    req_data = request.json
+    req_data: dict = request.json
 
-    if db.auth_user(req_data):
-        session["logged_in"] = True
-        session["username"] = req_data["username"]
-        return jsonify({"message": "Login successful"})
+    if not db.auth_user(req_data):
+        return (
+            "Could not verify",
+            401,
+            {"WWW-Authenticate": "Basic realm='Login required!'"},
+        )
 
-    return make_response(
-        "Could not verify", 401, {"WWW-Authenticate": "Basic realm='Login required!'"}
-    )
+    if login_user(session["username"]):
+        return (
+            "Could not verify",
+            401,
+            {"WWW-Authenticate": "Basic realm='Login required!'"},
+        )
+
+    session["logged_in"] = True
+    session["username"] = req_data["username"]
+
+    return jsonify({"message": "Login successful"})
 
 
 @app.post("/logout")
