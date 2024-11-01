@@ -12,7 +12,7 @@ from database import Database, Users
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(64)
 db = Database(app, db_config)
-CORS(app, resources={r"*": {"origins": "*"}})
+CORS(app, supports_credentials=True, resources={r"*": {"origins": "*"}})
 
 login_manager = LoginManager()
 login_manager.init_app(app)
