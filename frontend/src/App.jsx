@@ -9,14 +9,19 @@ import Login from "./components/LoginPage.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 
 function App() {
+  document.title = "Knot servers stats";
   const [isAuth, setAuth] = useState(false);
   console.log("DBG" + isAuth);
 
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login setAuth={setAuth} />} />
-
+        <Route
+          path="/login"
+          element={
+            isAuth ? <Navigate to="/dashboard" /> : <Login setAuth={setAuth} />
+          }
+        />
         <Route
           path="/dashboard"
           element={isAuth ? <Dashboard /> : <Navigate to="/login" />}
