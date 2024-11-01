@@ -8,12 +8,23 @@ const LoginPage = ({ setAuth }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await axios.post("https://api.fit-vut.cz/login", {
-        username,
-        password,
-      });
+      const response = await axios.post(
+        "https://api.fit-vut.cz/login",
+        {
+          user: username,
+          password: password,
+        },
+        {
+          withCredentials: true,
+          headers: { "Access-Control-Allow-Origin": "*" },
+        },
+      );
 
+      console.log("Bitch i got " + response.status);
+      console.log(typeof response.status);
       if (response.status === 200) {
+        setAuth(true);
+        navigate("/dashboard");
         return true;
       }
       return false;
